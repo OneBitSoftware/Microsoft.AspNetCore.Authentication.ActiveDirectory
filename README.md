@@ -8,6 +8,14 @@ The old school ASP.NET Membership capabilities and Forms Authentication had a ni
 
 The new ASP.NET 5 stuff doesn't have NTLM/Kerberos authentication middleware and ASP.NET Identity 3 doesn't have an LDAP provider. This library allows you to do Windows Integrated Authentication with ASP.NET 5.
 
+##Status
+This is still work in progress. Kerberos is not attempted yet. 
+
+Todo:
+- Create a Log Out action link
+- Get some unit tests in place
+- Clean up some code and add more comments
+
 ##Remarks
 Achieving server-side NTLM handshaking depends the Windows platform due to interop, dependency on domain-joined machines and secur32.dll. This will naturally limit this library to Windows-based DNX hosts.
 

@@ -12,6 +12,7 @@ The new ASP.NET 5 stuff doesn't have NTLM/Kerberos authentication middleware and
 This is still work in progress. Kerberos is not attempted yet. 
 
 Todo:
+- Fix the state caching capability. I need to research the best design to store the challange at the server.
 - Create a Log Out action link
 - Get some unit tests in place
 - Clean up some code and add more comments

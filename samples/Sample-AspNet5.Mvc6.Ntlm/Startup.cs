@@ -30,6 +30,7 @@ namespace Sample_AspNet5.Mvc6.Ntlm
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //ActiveDirectory: Add the authentication middleware configuration
             services.AddAuthentication(options => new ActiveDirectoryCookieOptions());
 
             // Add framework services.
@@ -56,30 +57,13 @@ namespace Sample_AspNet5.Mvc6.Ntlm
 
             app.UseStaticFiles();
 
-            var cookieOptions = new ActiveDirectoryCookieOptions();
-            //cookieOptions.AuthenticationScheme = ActiveDirectoryCookieOptions
-            //cookieOptions.LoginPath = new PathString("/windowsauthentication/ntlm");
-            //cookieOptions.AutomaticChallenge = false;
-            //cookieOptions.AutomaticAuthenticate = false;
-
-            //Provider = new CookieAuthenticationProvider()
-            //{
-            //    OnApplyRedirect = ctx =>
-            //    {
-            //        if (!ctx.Request.IsNtlmAuthenticationCallback())    // <------
-            //        {
-            //            ctx.Response.Redirect(ctx.RedirectUri);
-            //        }
-            //    }
-            //}
-
-            app.UseCookieAuthentication(cookieOptions.ApplicationCookie);
-
+            //ActiveDirectory: set up cookies for client-side session identitfication
+            app.UseCookieAuthentication(new ActiveDirectoryCookieOptions().ApplicationCookie);
+            //ActiveDirectory: add the NTLM middlware in the pipeline
             app.UseNtlm(new ActiveDirectoryOptions
             {
                 AutomaticAuthenticate = false,
                 AutomaticChallenge = false,
-                //CallbackPath = new PathString("/windowsauthentication/ntlm"),
                 AuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
                 SignInAsAuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
             });

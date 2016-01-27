@@ -5,13 +5,16 @@
   "tags": [ "authentication" ],
   "projectUrl": "",
   "licenseUrl": "",
+  
 
   "dependencies": {
     "Microsoft.AspNet.Authentication": "1.0.0-rc1-final",
     "Microsoft.AspNet.IISPlatformHandler": "1.0.0-rc1-final",
     "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc1-final",
     "Microsoft.Extensions.Caching.Memory": "1.0.0-rc1-final",
-    "Microsoft.AspNet.Authentication.Cookies": "1.0.0-rc1-final"
+    "Microsoft.AspNet.Authentication.Cookies": "1.0.0-rc1-final",
+    "Microsoft.AspNet.Authorization": "1.0.0-rc1-final",
+    "Microsoft.AspNet.Mvc": "6.0.0-rc1-final"
   },
   "frameworks": {
     "net451": { },

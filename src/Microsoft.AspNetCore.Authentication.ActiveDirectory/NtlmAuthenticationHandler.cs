@@ -14,49 +14,13 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 {
     public class NtlmAuthenticationHandler : AuthenticationHandler<ActiveDirectoryOptions>
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public NtlmAuthenticationHandler()
-        {
-        }
+        private const string RedirectToEndpointKey = "NtlmAuthenticationHandlerRedirectToEndpoint";
+        private const string RespondNoNtlmKey = "NtlmAuthenticationHandlerRespondNoNtlm";
+        private const string RespondType2Key = "NtlmAuthenticationHandlerRespondType2";
+        private const string AuthenticatedKey = "NtlmAuthenticationHandlerAuthenticated";
+        private const string LocationKey = "LocationKey";
+        private const string NtlmAuthUniqueIdCookieKey = "NtlmAuthUniqueId";
 
-        /// <summary>
-        /// This is always invoked on each request. For passive middleware, only do anything if this is
-        /// for our callback path when the user is redirected back from the authentication provider.
-        /// </summary>
-        /// <returns></returns>
-        public async override Task<bool> HandleRequestAsync()
-        {
-            //if (Options.CallbackPath.HasValue && Options.CallbackPath ==
-            //    Request.PathBase.Add(Request.Path))
-            //{
-            //    var authContext = new AuthenticateContext(Options.AuthenticationScheme);
-            //    await AuthenticateAsync(authContext);
-            //    if (authContext.Accepted && authContext.Principal != null)
-            //    {
-            //        await Context.Authentication.SignInAsync(authContext.AuthenticationScheme,
-            //            authContext.Principal);
-
-            //        //return user to page
-            //        var responseUri = string.Empty;
-            //        authContext.Properties.TryGetValue("RedirectUri", out responseUri);
-            //        if (string.IsNullOrWhiteSpace(responseUri))
-            //            Response.Redirect("/");
-            //        else
-            //            Response.Redirect(responseUri);
-
-            //        return true;
-            //    }
-            //    if (Response.Headers.ContainsKey("WWW-Authenticate"))
-            //    {
-            //        return true;
-            //    }
-            //}
-            return await base.HandleRequestAsync();
-        }
-
-        #region Helpers
         protected override Task FinishResponseAsync()
         {
             //We need to fix the issues that the CookieAuthenticationHandler is leaving behind
@@ -64,30 +28,31 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
             //but we need it to retain the session and remove unnecessary handshaking
             if (Response.StatusCode == 302)
             {
-                if (Context.Items.ContainsKey("NtlmAuthenticationHandlerRespondNoNtlm") ||
-                    Context.Items.ContainsKey("NtlmAuthenticationHandlerRespondType2"))
+                if (Context.Items.ContainsKey(RespondNoNtlmKey) ||
+                    Context.Items.ContainsKey(RespondType2Key))
                 {
                     //we're cleaning up the location set by CookieAuthenticationHandler.HandleUnauthorizedAsync
-                    Response.Headers.Remove("Location"); 
+                    Response.Headers.Remove(LocationKey);
                     Response.StatusCode = 401;
                 }
 
-                if ((Context.Items.ContainsKey("NtlmAuthenticationHandlerAuthenticated"))
+                if ((Context.Items.ContainsKey(AuthenticatedKey))
                     && Request.Query.ContainsKey(Options.Cookies.ApplicationCookie.ReturnUrlParameter))
                 {
                     //we're cleaning up the location set by CookieAuthenticationHandler.HandleUnauthorizedAsync
-                    Response.Headers["Location"] = Request.Query[Options.Cookies.ApplicationCookie.ReturnUrlParameter];
+                    Response.Headers[LocationKey] = Request.Query[Options.Cookies.ApplicationCookie.ReturnUrlParameter];
                 }
             }
 
             return base.FinishResponseAsync();
         }
+
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             //if accessed from a different URL - ignore
             if (!Request.Path.Equals(Options.CallbackPath))
             {
-                Context.Items["NtlmAuthenticationHandlerRedirectToEndpoint"] = true;
+                Context.Items[RedirectToEndpointKey] = true;
                 Response.StatusCode = 302;
                 return AuthenticateResult.Failed("Redirecting to authentication route /windowsauthentication/ntlm");
             }
@@ -108,7 +73,12 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                 // header tells the browser to try again with NTLM
                 Response.Headers.Add("WWW-Authenticate", new[] { "NTLM" });
                 Response.StatusCode = 401;
-                Context.Items["NtlmAuthenticationHandlerRespondNoNtlm"] = true;
+                Context.Items[RespondNoNtlmKey] = true;
+
+                //We're creating a unique guid to identify the client between the
+                //Type 2 and Type 3 handshake
+                var requestUniqueId = Guid.NewGuid();
+                Response.Cookies.Append(NtlmAuthUniqueIdCookieKey, requestUniqueId.ToString());
 
                 return AuthenticateResult.Failed("No NTLM header, returning WWW-Authenticate NTLM.");
             }
@@ -119,10 +89,13 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                 token = Convert.FromBase64String(header.Substring(5));
             }
 
-            var stateId = Request.Query["state"];
-            if (string.IsNullOrWhiteSpace(stateId)) stateId = "123";
-            HandshakeState state = null;// new HandshakeState();
-            this.Options.LoginStateCache.TryGet(stateId, out state);
+            var responseUniqueId = Request.Cookies[NtlmAuthUniqueIdCookieKey];
+            HandshakeState state = null;
+            //see if the response is from a known client handshake
+            if (!string.IsNullOrWhiteSpace(responseUniqueId))
+            {
+                this.Options.LoginStateCache.TryGet(responseUniqueId, out state); 
+            }
 
             if (state == null) state = new HandshakeState();
 
@@ -142,8 +115,8 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                     Response.Headers.Add("WWW-Authenticate", new[] { string.Concat("NTLM ", authorization) });
                     Response.StatusCode = 401;
 
-                    Options.LoginStateCache.Add("123", state);
-                    Context.Items["NtlmAuthenticationHandlerRespondType2"] = true;
+                    Options.LoginStateCache.Add(responseUniqueId, state);
+                    Context.Items[RespondType2Key] = true;
 
                     return AuthenticateResult.Failed("Received NTLM Type 1, sending Type 2 with status 401.");
                 }
@@ -179,14 +152,19 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                             });
 
                         // We don't need that state anymore
-                        Options.LoginStateCache.TryRemove(stateId);
+                        Options.LoginStateCache.TryRemove(responseUniqueId);
 
                         // create the authentication ticket
                         var principal = new ClaimsPrincipal(identity);
-                        var ticket = new AuthenticationTicket(principal, properties, Options.Cookies.ApplicationCookie.AuthenticationScheme);
+                        var ticket = new AuthenticationTicket
+                            (principal, properties,
+                            Options.Cookies.ApplicationCookie.AuthenticationScheme);
 
-                        await Context.Authentication.SignInAsync(Options.Cookies.ApplicationCookie.AuthenticationScheme, principal, properties);
-                        Context.Items["NtlmAuthenticationHandlerAuthenticated"] = true;
+                        await Context.Authentication.SignInAsync
+                            (Options.Cookies.ApplicationCookie.AuthenticationScheme,
+                            principal, properties);
+
+                        Context.Items[AuthenticatedKey] = true;
 
                         return AuthenticateResult.Success(ticket);
                     }
@@ -213,7 +191,5 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
         {
             return base.HandleForbiddenAsync(context);
         }
-        #endregion
     }
-
 }

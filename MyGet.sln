@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.AspNetCore.Authentication.ActiveDirectory", "src\Microsoft.AspNetCore.Authentication.ActiveDirectory\Microsoft.AspNetCore.Authentication.ActiveDirectory.xproj", "{404A11C5-8F4E-480E-BAE7-9FF2D7060BCE}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.AspNetCore.Authentication.ActiveDirectory", "src\Microsoft.AspNetCore.Authentication.ActiveDirectory", "{404A11C5-8F4E-480E-BAE7-9FF2D7060BCE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{664EC421-1B80-4F97-BCE3-2D0B759BD42F}"
 	ProjectSection(SolutionItems) = preProject

@@ -1,9 +1,9 @@
 nuget:
   account_feed: true
-  
+
 init:
   - git config --global core.autocrlf true
-  
+
 install:
  - ps: "&{$Branch='dev';iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.ps1'))}"
  - ps: dnvm update-self
@@ -14,3 +14,6 @@ install:
 
 before_build:
  - ps: dnu restore
+
+after_build:
+  - ps: Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }

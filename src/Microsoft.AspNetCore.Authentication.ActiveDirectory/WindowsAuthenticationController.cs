@@ -1,18 +1,13 @@
-﻿using Microsoft.AspNet.Authorization;
-using Microsoft.AspNet.Http.Authentication;
-using Microsoft.AspNet.Mvc;
-using Microsoft.AspNetCore.Authentication.ActiveDirectory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Sample_AspNet5.Mvc6.Ntlm.Controllers
+﻿namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 {
+    using Microsoft.AspNet.Authorization;
+    using Microsoft.AspNet.Http.Authentication;
+    using Microsoft.AspNet.Mvc;
+    using System.Threading.Tasks;
+
     public class WindowsAuthenticationController : Controller
     {
         [AllowAnonymous]
-        [Route("/windowsauthentication/ntlm")]
         [HttpGet]
         public async Task<IActionResult> Ntlm(string returnUrl)
         {

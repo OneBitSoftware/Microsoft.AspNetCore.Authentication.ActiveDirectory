@@ -1,4 +1,5 @@
 # Microsoft.AspNetCore.Authentication.ActiveDirectory
+[![Build status](https://ci.appveyor.com/api/projects/status/hhd468o15oct73sg?svg=true)](https://ci.appveyor.com/project/SharePointRadi/microsoft-aspnetcore-authentication-activedirector)
 Middleware for ASP.NET 5 for Windows Integrated Authentication with NTLM and Kerberos
 
 ##Overview

@@ -19,11 +19,10 @@ after_build:
   - ps: Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 artifacts: 
- - path: '.\*.nupkg' 
+ - path: '**\*.nupkg' 
 
 deploy:
   provider: NuGet
   api_key:
     secure: 3Riwgut3XJ2XobdaMb7/phU0SNVj/SwDfkY6F0TSqXsnpcdIzZc+s+yK/XjHu+8L
   skip_symbols: false
-  artifact: /.*\.nupkg/

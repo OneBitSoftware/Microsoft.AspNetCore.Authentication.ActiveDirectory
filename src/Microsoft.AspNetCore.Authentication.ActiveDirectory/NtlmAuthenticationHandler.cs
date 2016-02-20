@@ -94,7 +94,7 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
             //see if the response is from a known client handshake
             if (!string.IsNullOrWhiteSpace(responseUniqueId))
             {
-                this.Options.LoginStateCache.TryGet(responseUniqueId, out state); 
+                this.Options.LoginStateCache.TryGet(responseUniqueId, out state);
             }
 
             if (state == null) state = new HandshakeState();
@@ -131,25 +131,18 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 
                     if (Options.Filter == null || Options.Filter.Invoke(state.WindowsIdentity, Request))
                     {
-                        // If the name is something like DOMAIN\username then
-                        // grab the name part (and what if it looks like username@domain?)
-                        var parts = state.WindowsIdentity.Name.Split(new[] { '\\' }, 2);
-                        string shortName = parts.Length == 1 ? parts[0] : parts[parts.Length - 1];
-
                         // we need to create a new identity using the sign in type that 
                         // the cookie authentication is listening for
                         var identity = new ClaimsIdentity(Options.Cookies.ApplicationCookie.AuthenticationScheme);
 
-                        identity.AddClaims(new[]
+                        //Add WindowsIdentity claims to the Identity object
+                        var newClaims = new[]
                         {
-                                new Claim(ClaimTypes.NameIdentifier,
-                                state.WindowsIdentity.User.Value, null,
-                                Options.AuthenticationScheme),
-                                new Claim(ClaimTypes.Name, shortName),
-                                new Claim(ClaimTypes.Sid, state.WindowsIdentity.User.Value),
-                                new Claim(ClaimTypes.AuthenticationMethod,
-                                ActiveDirectoryOptions.DefaultAuthenticationScheme)
-                            });
+                            new Claim(ClaimTypes.AuthenticationMethod,
+                                ActiveDirectoryOptions.DefaultAuthenticationScheme),
+                        };
+
+                        identity.AddClaims(state.WindowsIdentity.Claims);
 
                         // We don't need that state anymore
                         Options.LoginStateCache.TryRemove(responseUniqueId);

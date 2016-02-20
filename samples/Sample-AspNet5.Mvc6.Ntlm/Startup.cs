@@ -57,8 +57,24 @@ namespace Sample_AspNet5.Mvc6.Ntlm
 
             app.UseStaticFiles();
 
+
+
             //ActiveDirectory: set up cookies for client-side session identitfication
             app.UseCookieAuthentication(new ActiveDirectoryCookieOptions().ApplicationCookie);
+
+            //EXAMPLE: using with a custom action URL
+            //app.UseCookieAuthentication(
+            //    new ActiveDirectoryCookieOptions(
+            //        new CookieAuthenticationOptions()
+            //        {
+            //            AuthenticationScheme = typeof(ActiveDirectoryCookieOptions).Namespace + ".Application",
+            //            AutomaticAuthenticate = true,
+            //            AutomaticChallenge = true,
+            //            ReturnUrlParameter = "ReturnUrl",
+            //            LoginPath = new PathString("/api/windowsauthentication/ntlm"),
+            //        }).ApplicationCookie
+            //);
+
             //ActiveDirectory: add the NTLM middlware in the pipeline
             app.UseNtlm(new ActiveDirectoryOptions
             {
@@ -66,13 +82,31 @@ namespace Sample_AspNet5.Mvc6.Ntlm
                 AutomaticChallenge = false,
                 AuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
                 SignInAsAuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
+                CallbackPath = new PathString("/api/windowsauthentication/ntlm")
             });
+
+            //EXAMPLE: using with a custom action URL
+            //ActiveDirectory: add the NTLM middlware in the pipeline
+            //app.UseNtlm(new ActiveDirectoryOptions
+            //{
+            //    AutomaticAuthenticate = false,
+            //    AutomaticChallenge = false,
+            //    AuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
+            //    SignInAsAuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
+            //    CallbackPath = new PathString("/api/windowsauthentication/ntlm")
+            //});
 
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+
+                //EXAMPLE: using with a custom action URL
+                //routes.MapRoute(
+                //    name: "authentication",
+                //    template: "api/{controller=WindowsAuthentication}/{action=Ntlm}");
+
             });
         }
 

@@ -82,7 +82,6 @@ namespace Sample_AspNet5.Mvc6.Ntlm
                 AutomaticChallenge = false,
                 AuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
                 SignInAsAuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
-                CallbackPath = new PathString("/api/windowsauthentication/ntlm")
             });
 
             //EXAMPLE: using with a custom action URL

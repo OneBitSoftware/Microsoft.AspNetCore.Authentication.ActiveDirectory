@@ -19,7 +19,7 @@ after_build:
   - ps: Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 artifacts: 
- - path: '**\*.nupkg' 
+ - path: '**\Microsoft.AspNetCore.Authentication.ActiveDirectory*.nupkg' 
 
 deploy:
   provider: NuGet

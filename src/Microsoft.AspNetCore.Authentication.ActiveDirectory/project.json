@@ -1,11 +1,11 @@
 {
-  "version": "1.0.1-*",
+  "version": "1.0.2-*",
   "description": "Authentication middleware for Active Directory with WIA, Ntlm and Kerberos support.",
   "authors": [ "Radi Atanassov" ],
-  "tags": [ "authentication" ],
-  "projectUrl": "",
-  "licenseUrl": "",
-  
+  "tags": [ "authentication", "aspnet", "identity", "activedirectory" ],
+  "projectUrl": "https://github.com/OneBitSoftware/Microsoft.AspNetCore.Authentication.ActiveDirectory",
+  "licenseUrl": "https://github.com/OneBitSoftware/Microsoft.AspNetCore.Authentication.ActiveDirectory/blob/master/LICENSE",
+
 
   "dependencies": {
     "Microsoft.AspNet.Authentication": "1.0.0-rc1-final",

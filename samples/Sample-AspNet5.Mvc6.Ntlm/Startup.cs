@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.ActiveDirectory;
 using Microsoft.AspNet.Authentication.Cookies;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Authentication;
+using Microsoft.AspNetCore.Authentication.ActiveDirectory.Events;
 
 namespace Sample_AspNet5.Mvc6.Ntlm
 {
@@ -82,7 +83,27 @@ namespace Sample_AspNet5.Mvc6.Ntlm
                 AutomaticChallenge = false,
                 AuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
                 SignInAsAuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
+
+                //Optionally, you can handle the events below
+                Events = new AuthenticationEvents()
+                {
+                    OnAuthenticationSucceeded = succeededContext =>
+                    {
+                        var userName = succeededContext.AuthenticationTicket.Principal.Identity.Name;
+
+                        //do something on successful authentication
+
+                        return Task.FromResult<object>(null);
+                    },
+                    OnAuthenticationFailed = failedContext =>
+                    {
+                        //do something on failed authentication
+
+                        return Task.FromResult<object>(null);
+                    }
+                }
             });
+            
 
             //EXAMPLE: using with a custom action URL
             //ActiveDirectory: add the NTLM middlware in the pipeline

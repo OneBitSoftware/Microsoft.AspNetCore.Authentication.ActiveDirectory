@@ -1,5 +1,5 @@
 {
-  "version": "1.0.4-*",
+  "version": "1.0.5-*",
   "description": "Authentication middleware for Active Directory with WIA, Ntlm and Kerberos support.",
   "authors": [ "Radi Atanassov" ],
   "tags": [ "authentication", "aspnet", "identity", "activedirectory" ],

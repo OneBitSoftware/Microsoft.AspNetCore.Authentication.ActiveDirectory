@@ -5,6 +5,7 @@
     using Microsoft.AspNet.Http;
     using Microsoft.AspNet.Http.Authentication;
     using System.Security.Principal;
+    using Events;
 
     public class ActiveDirectoryOptions : AuthenticationOptions
     {
@@ -69,6 +70,12 @@
         }
 
         public ActiveDirectoryCookieOptions Cookies { get; set; } = new ActiveDirectoryCookieOptions();
+         
+        /// <summary> 
+        /// The object provided by the application to process events raised by the Active Directory authentication middleware. 
+        /// The application may implement the interface fully, or it may create an instance of AuthenticationEvents 
+        /// and assign delegates only to the events it wants to process. 
+        /// </summary> 
+        public IAuthenticationEvents Events { get; set; } = new AuthenticationEvents(); 
     }
-
 }

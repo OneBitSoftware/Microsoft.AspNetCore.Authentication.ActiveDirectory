@@ -123,7 +123,7 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
             }
             else if (token != null && token[8] == 3)
             {
-                // message of type 3 was received
+                // message of type 3 was received, we validate it
                 if (state.IsClientResponseValid(token))
                 {
                     // Authorization successful 
@@ -153,16 +153,25 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                             (principal, properties,
                             Options.Cookies.ApplicationCookie.AuthenticationScheme);
 
+                        //handle the sign in method of the auth middleware
                         await Context.Authentication.SignInAsync
                             (Options.Cookies.ApplicationCookie.AuthenticationScheme,
                             principal, properties);
 
                         Context.Items[AuthenticatedKey] = true;
 
+                        //throw the succeded event
+                        await Options.Events.AuthenticationSucceeded(new Events.AuthenticationSucceededContext(Context, Options)
+                        {
+                            AuthenticationTicket = ticket //pass the ticket
+                        });
+
                         return AuthenticateResult.Success(ticket);
                     }
                 }
             }
+
+            await Options.Events.AuthenticationFailed(new Events.AuthenticationFailedContext(Context, Options));
 
             return AuthenticateResult.Failed("Unauthorized");
         }
@@ -180,6 +189,7 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
             await base.HandleSignInAsync(context);
             SignInAccepted = true;
         }
+
         protected override Task<bool> HandleForbiddenAsync(ChallengeContext context)
         {
             return base.HandleForbiddenAsync(context);

@@ -20,10 +20,13 @@ Todo:
 
 ##Getting Started
 1. Review the sample in the "samples folder.
-2. Add the `Microsoft.AspNetCore.Authentication.ActiveDirectory` library to your project.json file
-3. Add the following line `services.AddAuthentication(options => new ActiveDirectoryCookieOptions());` in your Startup.cs `ConfigureServices` method
-4. Add `app.UseCookieAuthentication(new ActiveDirectoryCookieOptions().ApplicationCookie);` to your Startup.cs `Configure` method
-5. Add the following after the `app.UseCookieAuthentication()` line (Step 4):
+2. Either install through the NuGet package: https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.ActiveDirectory/
+
+	OR just reference the source code directly.
+3. Add the `Microsoft.AspNetCore.Authentication.ActiveDirectory` library to your project.json file
+4. Add the following line `services.AddAuthentication(options => new ActiveDirectoryCookieOptions());` in your Startup.cs `ConfigureServices` method
+5. Add `app.UseCookieAuthentication(new ActiveDirectoryCookieOptions().ApplicationCookie);` to your Startup.cs `Configure` method
+6. Add the following after the `app.UseCookieAuthentication()` line (Step 4):
 
 ```cs            
 app.UseNtlm(new ActiveDirectoryOptions
@@ -69,6 +72,38 @@ You will need to make sure MVC can resolve the route in UseMvc():
 routes.MapRoute(
     name: "authentication",
     template: "api/{controller=WindowsAuthentication}/{action=Ntlm}");
+```
+
+##Events
+If you choose to do so, you can subscribe to authentication events thrown from the middleware. To do so, pass an AuthenticationEvents class to the ActiveDirectoryOptions object during startup:
+
+```cs
+app.UseNtlm(new ActiveDirectoryOptions
+{
+    AutomaticAuthenticate = false,
+    AutomaticChallenge = false,
+    AuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
+    SignInAsAuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
+
+    //Optionally, you can handle the events below
+    Events = new AuthenticationEvents()
+    {
+        OnAuthenticationSucceeded = succeededContext =>
+        {
+            var userName = succeededContext.AuthenticationTicket.Principal.Identity.Name;
+
+            //do something on successful authentication
+
+            return Task.FromResult<object>(null);
+        },
+        OnAuthenticationFailed = failedContext =>
+        {
+            //do something on failed authentication
+
+            return Task.FromResult<object>(null);
+        }
+    }
+});
 ```
 
 ##Remarks

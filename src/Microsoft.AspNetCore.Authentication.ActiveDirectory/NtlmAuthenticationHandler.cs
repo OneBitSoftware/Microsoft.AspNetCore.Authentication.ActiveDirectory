@@ -35,12 +35,12 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                     Response.Headers.Remove(LocationKey);
                     Response.StatusCode = 401;
                 }
-
+                
                 if ((Context.Items.ContainsKey(AuthenticatedKey))
                     && Request.Query.ContainsKey(Options.Cookies.ApplicationCookie.ReturnUrlParameter))
                 {
                     //we're cleaning up the location set by CookieAuthenticationHandler.HandleUnauthorizedAsync
-                    Response.Headers[LocationKey] = Request.Query[Options.Cookies.ApplicationCookie.ReturnUrlParameter];
+                    Response.Redirect(Request.Query[Options.Cookies.ApplicationCookie.ReturnUrlParameter]);
                 }
             }
 

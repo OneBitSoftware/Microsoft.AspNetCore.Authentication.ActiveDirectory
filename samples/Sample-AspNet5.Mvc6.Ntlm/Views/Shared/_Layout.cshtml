@@ -33,6 +33,7 @@
                     <li><a asp-controller="Home" asp-action="Index">Home</a></li>
                     <li><a asp-controller="Home" asp-action="About">Secured Page</a></li>
                     <li><a asp-controller="Home" asp-action="Contact">Unsecured Page</a></li>
+                    <li><a asp-controller="WindowsAuthentication" asp-route-returnUrl="/Home" asp-action="LogOut">Log Out</a></li>
                     <li style="color:white"><a asp-controller="Home" asp-action="Index">Hello @User.Identity.Name !</a></li>
                     <li style="color:white"><a asp-controller="Home" asp-action="Index">Authenticated: @User.Identity.IsAuthenticated </a></li>
 

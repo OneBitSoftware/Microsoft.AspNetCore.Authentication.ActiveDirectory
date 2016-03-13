@@ -194,5 +194,11 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
         {
             return base.HandleForbiddenAsync(context);
         }
+
+        protected override async Task HandleSignOutAsync(SignOutContext context)
+        {
+            await Context.Authentication.SignOutAsync(Options.Cookies.ApplicationCookie.AuthenticationScheme);
+            await base.HandleSignOutAsync(context);
+        }
     }
 }

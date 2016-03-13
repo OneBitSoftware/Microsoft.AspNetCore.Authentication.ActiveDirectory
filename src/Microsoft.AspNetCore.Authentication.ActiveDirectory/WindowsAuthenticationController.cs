@@ -9,7 +9,7 @@
     {
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> Ntlm(string returnUrl)
+        public async Task<IActionResult> Ntlm(string returnUrl = null)
         {
             if (this.User.Identity.IsAuthenticated == false)
             {
@@ -27,10 +27,21 @@
             else
             {
                 if (string.IsNullOrWhiteSpace(returnUrl))
-                    return Redirect("/");
+                    return new HttpOkResult();
                 else
                     return Redirect(returnUrl);
             }
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> LogOut(string returnUrl = null)
+        {
+            var context = this.Request.HttpContext;
+            await context.Authentication.SignOutAsync(ActiveDirectoryOptions.DefaultAuthenticationScheme);
+            if (string.IsNullOrWhiteSpace(returnUrl))
+                return new HttpOkResult();
+            else
+                return Redirect(returnUrl);
         }
     }
 }

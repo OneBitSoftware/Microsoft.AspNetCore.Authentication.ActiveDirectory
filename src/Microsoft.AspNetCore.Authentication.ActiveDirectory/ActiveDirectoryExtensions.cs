@@ -1,9 +1,10 @@
 ﻿namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 {
     using Extensions.WebEncoders;
-    using Microsoft.AspNet.Builder;
-    using Microsoft.AspNet.Http;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Http;
     using System;
+    using System.Text.Encodings.Web;
 
     /// <summary> 
     /// Extension methods for the ActiveDirectoryMiddleware
@@ -16,7 +17,7 @@
         /// <param name="app"></param>
         /// <param name="options">An ActiveDirectoryOptions configuration</param>
         /// <returns></returns>
-        public static IApplicationBuilder UseNtlm(this IApplicationBuilder app, ActiveDirectoryOptions options = null, IUrlEncoder encoder = null)
+        public static IApplicationBuilder UseNtlm(this IApplicationBuilder app, ActiveDirectoryOptions options = null, UrlEncoder encoder = null)
         {
             if (app == null)
             {

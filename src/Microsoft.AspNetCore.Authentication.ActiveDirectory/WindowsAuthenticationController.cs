@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 {
-    using Microsoft.AspNet.Authorization;
-    using Microsoft.AspNet.Http.Authentication;
-    using Microsoft.AspNet.Mvc;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http.Authentication;
+    using Microsoft.AspNetCore.Mvc;
     using System.Threading.Tasks;
 
     public class WindowsAuthenticationController : Controller
@@ -19,15 +19,15 @@
                 await context.Authentication.ChallengeAsync(ActiveDirectoryOptions.DefaultAuthenticationScheme, defaultProperties);
 
                 if (context.Response.StatusCode == 302)
-                    return new HttpStatusCodeResult(302);
+                    return new StatusCodeResult(302);
                 else {
-                    return new HttpUnauthorizedResult();
+                    return new UnauthorizedResult();
                 }
             }
             else
             {
                 if (string.IsNullOrWhiteSpace(returnUrl))
-                    return new HttpOkResult();
+                    return new OkResult();
                 else
                     return Redirect(returnUrl);
             }
@@ -39,7 +39,7 @@
             var context = this.Request.HttpContext;
             await context.Authentication.SignOutAsync(ActiveDirectoryOptions.DefaultAuthenticationScheme);
             if (string.IsNullOrWhiteSpace(returnUrl))
-                return new HttpOkResult();
+                return new OkResult();
             else
                 return Redirect(returnUrl);
         }

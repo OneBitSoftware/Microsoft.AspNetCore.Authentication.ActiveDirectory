@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.AspNetCore.Authentication.ActiveDirectory.Events
 {
-    using AspNet.Authentication;
-    using Microsoft.AspNet.Http;
+    using AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Http;
 
     public class AuthenticationSucceededContext : BaseActiveDirectoryContext
     {

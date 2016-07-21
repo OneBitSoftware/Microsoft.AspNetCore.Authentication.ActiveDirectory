@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 {
-    using Microsoft.AspNet.Http.Authentication;
+    using Microsoft.AspNetCore.Http.Authentication;
     using System;
     using System.Security.Principal;
 

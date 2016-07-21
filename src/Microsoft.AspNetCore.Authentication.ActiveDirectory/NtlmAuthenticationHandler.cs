@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNet.Authentication;
-using Microsoft.AspNet.Http.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Text;
-using Microsoft.AspNet.Http.Features.Authentication;
+using Microsoft.AspNetCore.Http.Features.Authentication;
 
 namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 {
@@ -54,7 +54,7 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
             {
                 Context.Items[RedirectToEndpointKey] = true;
                 Response.StatusCode = 302;
-                return AuthenticateResult.Failed("Redirecting to authentication route /windowsauthentication/ntlm");
+                return AuthenticateResult.Fail("Redirecting to authentication route /windowsauthentication/ntlm");
             }
 
             //check if the request has an NTLM header
@@ -80,7 +80,7 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                 var requestUniqueId = Guid.NewGuid();
                 Response.Cookies.Append(NtlmAuthUniqueIdCookieKey, requestUniqueId.ToString());
 
-                return AuthenticateResult.Failed("No NTLM header, returning WWW-Authenticate NTLM.");
+                return AuthenticateResult.Fail("No NTLM header, returning WWW-Authenticate NTLM.");
             }
 
             if (!string.IsNullOrEmpty(authorizationHeader) && hasNtlm)
@@ -118,7 +118,7 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                     Options.LoginStateCache.Add(responseUniqueId, state);
                     Context.Items[RespondType2Key] = true;
 
-                    return AuthenticateResult.Failed("Received NTLM Type 1, sending Type 2 with status 401.");
+                    return AuthenticateResult.Fail("Received NTLM Type 1, sending Type 2 with status 401.");
                 }
             }
             else if (token != null && token[8] == 3)
@@ -163,7 +163,7 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                         //throw the succeded event
                         await Options.Events.AuthenticationSucceeded(new Events.AuthenticationSucceededContext(Context, Options)
                         {
-                            AuthenticationTicket = ticket //pass the ticket
+                            Ticket = ticket //pass the ticket
                         });
 
                         return AuthenticateResult.Success(ticket);
@@ -173,7 +173,7 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 
             await Options.Events.AuthenticationFailed(new Events.AuthenticationFailedContext(Context, Options));
 
-            return AuthenticateResult.Failed("Unauthorized");
+            return AuthenticateResult.Fail("Unauthorized");
         }
 
         protected override async Task<bool> HandleUnauthorizedAsync(ChallengeContext context)

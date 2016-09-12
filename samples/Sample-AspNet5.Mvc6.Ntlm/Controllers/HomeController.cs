@@ -5,6 +5,7 @@ namespace Sample_AspNet5.Mvc6.Ntlm.Controllers
 {
     public class HomeController : Controller
     {
+        [AllowAnonymous]
         public IActionResult Index()
         {
             return View();

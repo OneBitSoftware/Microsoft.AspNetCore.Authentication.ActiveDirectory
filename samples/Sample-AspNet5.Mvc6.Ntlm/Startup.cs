@@ -10,11 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.ActiveDirectory;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.ActiveDirectory.Events;
-
+using Microsoft.AspNetCore.Http;
 
 namespace Sample_AspNet5.Mvc6.Ntlm
 {
@@ -59,27 +56,25 @@ namespace Sample_AspNet5.Mvc6.Ntlm
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            //app.UseIISPlatformHandler();
-
             app.UseStaticFiles();
 
 
 
             //ActiveDirectory: set up cookies for client-side session identitfication
-            app.UseCookieAuthentication(new ActiveDirectoryCookieOptions().ApplicationCookie);
+            //app.UseCookieAuthentication(new ActiveDirectoryCookieOptions().ApplicationCookie);
 
             //EXAMPLE: using with a custom action URL
-            //app.UseCookieAuthentication(
-            //    new ActiveDirectoryCookieOptions(
-            //        new CookieAuthenticationOptions()
-            //        {
-            //            AuthenticationScheme = typeof(ActiveDirectoryCookieOptions).Namespace + ".Application",
-            //            AutomaticAuthenticate = true,
-            //            AutomaticChallenge = true,
-            //            ReturnUrlParameter = "ReturnUrl",
-            //            LoginPath = new PathString("/api/windowsauthentication/ntlm"),
-            //        }).ApplicationCookie
-            //);
+            app.UseCookieAuthentication(
+                new ActiveDirectoryCookieOptions(
+                    new CookieAuthenticationOptions()
+                    {
+                        AuthenticationScheme = typeof(ActiveDirectoryCookieOptions).Namespace + ".Application",
+                        AutomaticAuthenticate = false,
+                        AutomaticChallenge = true,
+                        ReturnUrlParameter = "ReturnUrl",
+                        LoginPath = new PathString("/windowsauthentication/ntlm"),
+                    }).ApplicationCookie
+            );
 
             //ActiveDirectory: add the NTLM middlware in the pipeline
             app.UseNtlm(new ActiveDirectoryOptions

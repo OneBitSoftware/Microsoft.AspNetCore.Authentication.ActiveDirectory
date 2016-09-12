@@ -1,23 +1,6 @@
 {
   "version": "1.0.0-*",
 
-  //"dependencies": {
-  //  "Microsoft.AspNet.Diagnostics": "1.0.0-rc1-final",
-  //  "Microsoft.AspNet.IISPlatformHandler": "1.0.0-rc1-final",
-  //  "Microsoft.AspNet.Mvc": "6.0.0-rc1-final",
-  //  "Microsoft.AspNet.Mvc.TagHelpers": "6.0.0-rc1-final",
-  //  "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc1-final",
-  //  "Microsoft.AspNet.StaticFiles": "1.0.0-rc1-final",
-  //  "Microsoft.AspNet.Tooling.Razor": "1.0.0-rc1-final",
-  //  "Microsoft.Extensions.Configuration.FileProviderExtensions": "1.0.0-rc1-final",
-  //  "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-final",
-  //  "Microsoft.Extensions.Logging": "1.0.0-rc1-final",
-  //  "Microsoft.Extensions.Logging.Console": "1.0.0-rc1-final",
-  //  "Microsoft.Extensions.Logging.Debug": "1.0.0-rc1-final",
-  //  "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-rc1-final",
-  //  "Microsoft.AspNetCore.Authentication.ActiveDirectory": ""
-  //},
-
   "dependencies": {
     "Microsoft.AspNetCore.Diagnostics": "1.0.0",
     "Microsoft.AspNetCore.Mvc": "1.0.0",
@@ -29,8 +12,10 @@
     "Microsoft.Extensions.Logging": "1.0.0",
     "Microsoft.Extensions.Logging.Console": "1.0.0",
     "Microsoft.Extensions.Logging.Debug": "1.0.0",
-
-    "Microsoft.AspNetCore.Authentication.ActiveDirectory": "1.0.7-*"
+    "Microsoft.AspNetCore.Authentication.ActiveDirectory": "1.1.0-*",
+    "Microsoft.AspNetCore.Authentication": "1.0.0",
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
+    "Microsoft.AspNetCore.Authorization": "1.0.0"
   },
 
   "tools": {
@@ -42,8 +27,7 @@
   },
 
   "frameworks": {
-    "net451": {},
-    //"dnxcore50": { }
+    "net451": {}
   },
 
   "buildOptions": {
@@ -68,14 +52,6 @@
     ]
   },
 
-  //"exclude": [
-  //  "wwwroot",
-  //  "node_modules"
-  //],
-  //"publishExclude": [
-  //  "**.user",
-  //  "**.vspscc"
-  //],
   "scripts": {
     "prepublish": [ "npm install", "bower install", "gulp clean", "gulp min" ]
   }

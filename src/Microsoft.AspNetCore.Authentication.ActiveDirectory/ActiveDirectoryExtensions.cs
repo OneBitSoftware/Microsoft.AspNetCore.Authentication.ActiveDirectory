@@ -32,8 +32,6 @@
                 return app.UseMiddleware<ActiveDirectoryMiddleware>(options, encoder);
             }
 
-            //app.UseCookieAuthentication(options.Cookies.ApplicationCookie);
-
             return app.UseMiddleware<ActiveDirectoryMiddleware>(encoder);
         }
 
@@ -76,7 +74,5 @@
         {
             return request.IsNtlmAuthenticationCallback(ActiveDirectoryOptions.DefaultRedirectPath);
         }
-
-
     }
 }

@@ -20,7 +20,16 @@
 
                 if (context.Response.StatusCode == 302)
                     return new StatusCodeResult(302);
-                else {
+                else
+                {
+
+                    if (Response.StatusCode == 401)
+                    {
+                        //fix ReturnUrl
+                        var requestQuery = Request.QueryString.Value;
+
+                    }
+                    //context.ChallenceCalled
                     return new UnauthorizedResult();
                 }
             }

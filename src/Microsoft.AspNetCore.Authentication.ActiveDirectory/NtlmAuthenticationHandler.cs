@@ -42,10 +42,24 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                     //we're cleaning up the location set by CookieAuthenticationHandler.HandleUnauthorizedAsync
                     Response.Redirect(Request.Query[Options.Cookies.ApplicationCookie.ReturnUrlParameter]);
                 }
+
+                if ((Context.Items.ContainsKey(RedirectToEndpointKey)))
+                {
+                    //Do not redirect, cookies will
+                    //Response.Redirect("/windowsauthentication/ntlm?ReturnUrl" + Request.Path);
+                }
+            }
+
+            if ((Response.StatusCode == 401)  && (Context.Items.ContainsKey(RespondType2Key))
+                && (((Microsoft.AspNetCore.Authentication.AuthenticationHandler<Microsoft.AspNetCore.Authentication.ActiveDirectory.ActiveDirectoryOptions>)((Microsoft.AspNetCore.Http.Features.Authentication.HttpAuthenticationFeature)((Microsoft.AspNetCore.Http.Authentication.Internal.DefaultAuthenticationManager)((Microsoft.AspNetCore.Http.DefaultHttpContext)Context).Authentication).HttpAuthenticationFeature).Handler).PriorHandler != null))
+            {
+                ((Microsoft.AspNetCore.Authentication.AuthenticationHandler<Microsoft.AspNetCore.Authentication.ActiveDirectory.ActiveDirectoryOptions>)((Microsoft.AspNetCore.Http.Features.Authentication.HttpAuthenticationFeature)((Microsoft.AspNetCore.Http.Authentication.Internal.DefaultAuthenticationManager)((Microsoft.AspNetCore.Http.DefaultHttpContext)Context).Authentication).HttpAuthenticationFeature).Handler).PriorHandler.ChallenceCalled = true;
             }
 
             return base.FinishResponseAsync();
-        }
+
+
+         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {

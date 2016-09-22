@@ -1,5 +1,5 @@
 # Microsoft.AspNetCore.Authentication.ActiveDirectory
-[![Build status](https://ci.appveyor.com/api/projects/status/hhd468o15oct73sg?svg=true)](https://ci.appveyor.com/project/SharePointRadi/microsoft-aspnetcore-authentication-activedirector)
+NOTE: AppVeyor build is failing due to build scripts not yet updated. Solution is OK. [![Build status](https://ci.appveyor.com/api/projects/status/hhd468o15oct73sg?svg=true)](https://ci.appveyor.com/project/SharePointRadi/microsoft-aspnetcore-authentication-activedirector)
 
 Middleware for ASP.NET Core for Windows Integrated Authentication with NTLM and Kerberos
 

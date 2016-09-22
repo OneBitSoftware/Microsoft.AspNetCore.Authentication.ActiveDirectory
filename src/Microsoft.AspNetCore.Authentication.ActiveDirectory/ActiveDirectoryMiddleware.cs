@@ -1,15 +1,18 @@
 ﻿namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 {
     using Extensions.WebEncoders;
-    using Microsoft.AspNet.Authentication;
-    using Microsoft.AspNet.Builder;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.Logging;
     using System;
+    using System.Text.Encodings.Web;
+    using Extensions.Options;
+
     public class ActiveDirectoryMiddleware : AuthenticationMiddleware<ActiveDirectoryOptions>
     {
         private readonly RequestDelegate _next;
         private readonly ILogger _logger;
-        private readonly ActiveDirectoryOptions _options;
 
         /// <summary>
         /// Creates a new instance of the ActiveDirectoryMiddleware.
@@ -21,7 +24,7 @@
             RequestDelegate next,
             ActiveDirectoryOptions options,
             ILoggerFactory loggerFactory,
-            IUrlEncoder encoder)
+            UrlEncoder encoder)
             : base(next, options, loggerFactory, encoder)
         {
             if (next == null)

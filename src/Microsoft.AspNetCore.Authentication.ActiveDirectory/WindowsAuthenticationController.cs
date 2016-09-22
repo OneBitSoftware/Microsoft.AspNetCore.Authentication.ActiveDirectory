@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 {
-    using Microsoft.AspNet.Authorization;
-    using Microsoft.AspNet.Http.Authentication;
-    using Microsoft.AspNet.Mvc;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http.Authentication;
+    using Microsoft.AspNetCore.Mvc;
     using System.Threading.Tasks;
 
     public class WindowsAuthenticationController : Controller
@@ -15,22 +15,19 @@
             {
                 var defaultProperties = new AuthenticationProperties() { RedirectUri = returnUrl };
 
-                var context = this.Request.HttpContext;
-                await context.Authentication.ChallengeAsync(ActiveDirectoryOptions.DefaultAuthenticationScheme, defaultProperties);
+                var authContext = new Http.Features.Authentication.AuthenticateContext(ActiveDirectoryOptions.DefaultAuthenticationScheme);
+                await HttpContext.Authentication.AuthenticateAsync(authContext);
 
-                if (context.Response.StatusCode == 302)
-                    return new HttpStatusCodeResult(302);
-                else {
-                    return new HttpUnauthorizedResult();
+                if (!authContext.Accepted || authContext.Principal == null)
+                {
+                    return new UnauthorizedResult();
                 }
             }
+
+            if (string.IsNullOrWhiteSpace(returnUrl))
+                return new OkResult();
             else
-            {
-                if (string.IsNullOrWhiteSpace(returnUrl))
-                    return new HttpOkResult();
-                else
-                    return Redirect(returnUrl);
-            }
+                return Redirect(returnUrl);
         }
 
         [AllowAnonymous]
@@ -39,7 +36,7 @@
             var context = this.Request.HttpContext;
             await context.Authentication.SignOutAsync(ActiveDirectoryOptions.DefaultAuthenticationScheme);
             if (string.IsNullOrWhiteSpace(returnUrl))
-                return new HttpOkResult();
+                return new OkResult();
             else
                 return Redirect(returnUrl);
         }

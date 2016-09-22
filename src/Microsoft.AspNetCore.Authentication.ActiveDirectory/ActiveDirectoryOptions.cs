@@ -1,13 +1,15 @@
 ﻿namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 {
     using System;
-    using Microsoft.AspNet.Authentication;
-    using Microsoft.AspNet.Http;
-    using Microsoft.AspNet.Http.Authentication;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.Authentication;
     using System.Security.Principal;
     using Events;
+    using Extensions.Options;
 
-    public class ActiveDirectoryOptions : AuthenticationOptions
+    public class ActiveDirectoryOptions : AuthenticationOptions, IOptions<ActiveDirectoryOptions>
     {
         public const string DefaultAuthenticationScheme = "Ntlm";
 
@@ -76,6 +78,14 @@
         /// The application may implement the interface fully, or it may create an instance of AuthenticationEvents 
         /// and assign delegates only to the events it wants to process. 
         /// </summary> 
-        public IAuthenticationEvents Events { get; set; } = new AuthenticationEvents(); 
+        public IAuthenticationEvents Events { get; set; } = new AuthenticationEvents();
+
+        public ActiveDirectoryOptions Value
+        {
+            get
+            {
+                return this;
+            }
+        }
     }
 }

@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Hosting;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.ActiveDirectory;
-using Microsoft.AspNet.Authentication.Cookies;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.Authentication;
 using Microsoft.AspNetCore.Authentication.ActiveDirectory.Events;
+using Microsoft.AspNetCore.Http;
 
 namespace Sample_AspNet5.Mvc6.Ntlm
 {
@@ -21,6 +21,7 @@ namespace Sample_AspNet5.Mvc6.Ntlm
         {
             // Set up configuration sources.
             var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
@@ -46,7 +47,8 @@ namespace Sample_AspNet5.Mvc6.Ntlm
 
             if (env.IsDevelopment())
             {
-                app.UseBrowserLink();
+                // TODO: Fix this for RTM
+                //app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -54,27 +56,26 @@ namespace Sample_AspNet5.Mvc6.Ntlm
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            app.UseIISPlatformHandler();
-
             app.UseStaticFiles();
 
 
 
             //ActiveDirectory: set up cookies for client-side session identitfication
-            app.UseCookieAuthentication(new ActiveDirectoryCookieOptions().ApplicationCookie);
+            //app.UseCookieAuthentication(new ActiveDirectoryCookieOptions().ApplicationCookie);
 
             //EXAMPLE: using with a custom action URL
-            //app.UseCookieAuthentication(
-            //    new ActiveDirectoryCookieOptions(
-            //        new CookieAuthenticationOptions()
-            //        {
-            //            AuthenticationScheme = typeof(ActiveDirectoryCookieOptions).Namespace + ".Application",
-            //            AutomaticAuthenticate = true,
-            //            AutomaticChallenge = true,
-            //            ReturnUrlParameter = "ReturnUrl",
-            //            LoginPath = new PathString("/api/windowsauthentication/ntlm"),
-            //        }).ApplicationCookie
-            //);
+            app.UseCookieAuthentication(
+                new ActiveDirectoryCookieOptions(
+                    new CookieAuthenticationOptions()
+                    {
+                        AuthenticationScheme = typeof(ActiveDirectoryCookieOptions).Namespace + ".Application",
+                        AutomaticAuthenticate = true,
+                        AutomaticChallenge = true,
+                        ReturnUrlParameter = "ReturnUrl",
+                        LoginPath = new PathString("/windowsauthentication/ntlm"),
+                        AccessDeniedPath = new PathString("/windowsauthentication/ntlm")
+                    }).ApplicationCookie
+            );
 
             //ActiveDirectory: add the NTLM middlware in the pipeline
             app.UseNtlm(new ActiveDirectoryOptions
@@ -89,7 +90,7 @@ namespace Sample_AspNet5.Mvc6.Ntlm
                 {
                     OnAuthenticationSucceeded = succeededContext =>
                     {
-                        var userName = succeededContext.AuthenticationTicket.Principal.Identity.Name;
+                        var userName = succeededContext.Ticket.Principal.Identity.Name;
 
                         //do something on successful authentication
 
@@ -131,6 +132,16 @@ namespace Sample_AspNet5.Mvc6.Ntlm
         }
 
         // Entry point for the application.
-        public static void Main(string[] args) => WebApplication.Run<Startup>(args);
+        public static void Main(string[] args)
+        {
+            var webHostBuilder = new WebHostBuilder()
+                .UseStartup<Startup>()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseIISIntegration();
+
+            var webHost = webHostBuilder.Build();
+            webHost.Run();
+        }
     }
 }

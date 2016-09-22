@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.AspNetCore.Authentication.ActiveDirectory.Events
 {
-    using Microsoft.AspNet.Http;
+    using Microsoft.AspNetCore.Http;
 
     public class AuthenticationFailedContext : BaseActiveDirectoryContext
     {

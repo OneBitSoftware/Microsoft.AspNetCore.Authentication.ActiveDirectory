@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Text;
 using Microsoft.AspNetCore.Http.Features.Authentication;
+using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 {
@@ -35,31 +36,29 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                     Response.Headers.Remove(LocationKey);
                     Response.StatusCode = 401;
                 }
-                
+
                 if ((Context.Items.ContainsKey(AuthenticatedKey))
                     && Request.Query.ContainsKey(Options.Cookies.ApplicationCookie.ReturnUrlParameter))
                 {
                     //we're cleaning up the location set by CookieAuthenticationHandler.HandleUnauthorizedAsync
                     Response.Redirect(Request.Query[Options.Cookies.ApplicationCookie.ReturnUrlParameter]);
                 }
+            }
 
-                if ((Context.Items.ContainsKey(RedirectToEndpointKey)))
+            //The following prevents the Cookie auth middleware to set the response to 403 Forbidden
+            if ((Response.StatusCode == 401) &&
+                (Context.Items.ContainsKey(RespondNoNtlmKey)) ||
+                (Context.Items.ContainsKey(RespondType2Key)))
+            {
+                if (PriorHandler.GetType().BaseType == typeof(AuthenticationHandler<CookieAuthenticationOptions>))
                 {
-                    //Do not redirect, cookies will
-                    //Response.Redirect("/windowsauthentication/ntlm?ReturnUrl" + Request.Path);
+                    var challengeContext = new ChallengeContext(ActiveDirectoryOptions.DefaultAuthenticationScheme);
+                    PriorHandler.ChallengeAsync(challengeContext);
                 }
             }
 
-            if ((Response.StatusCode == 401)  && (Context.Items.ContainsKey(RespondType2Key))
-                && (((Microsoft.AspNetCore.Authentication.AuthenticationHandler<Microsoft.AspNetCore.Authentication.ActiveDirectory.ActiveDirectoryOptions>)((Microsoft.AspNetCore.Http.Features.Authentication.HttpAuthenticationFeature)((Microsoft.AspNetCore.Http.Authentication.Internal.DefaultAuthenticationManager)((Microsoft.AspNetCore.Http.DefaultHttpContext)Context).Authentication).HttpAuthenticationFeature).Handler).PriorHandler != null))
-            {
-                ((Microsoft.AspNetCore.Authentication.AuthenticationHandler<Microsoft.AspNetCore.Authentication.ActiveDirectory.ActiveDirectoryOptions>)((Microsoft.AspNetCore.Http.Features.Authentication.HttpAuthenticationFeature)((Microsoft.AspNetCore.Http.Authentication.Internal.DefaultAuthenticationManager)((Microsoft.AspNetCore.Http.DefaultHttpContext)Context).Authentication).HttpAuthenticationFeature).Handler).PriorHandler.ChallenceCalled = true;
-            }
-
             return base.FinishResponseAsync();
-
-
-         }
+        }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
@@ -145,34 +144,10 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
 
                     if (Options.Filter == null || Options.Filter.Invoke(state.WindowsIdentity, Request))
                     {
-                        // we need to create a new identity using the sign in type that 
-                        // the cookie authentication is listening for
-                        var identity = new ClaimsIdentity(Options.Cookies.ApplicationCookie.AuthenticationScheme);
-
-                        //Add WindowsIdentity claims to the Identity object
-                        var newClaims = new[]
-                        {
-                            new Claim(ClaimTypes.AuthenticationMethod,
-                                ActiveDirectoryOptions.DefaultAuthenticationScheme),
-                        };
-
-                        identity.AddClaims(state.WindowsIdentity.Claims);
+                        AuthenticationTicket ticket = await CreateAuthenticationTicket(state.WindowsIdentity.Claims, properties);
 
                         // We don't need that state anymore
                         Options.LoginStateCache.TryRemove(responseUniqueId);
-
-                        // create the authentication ticket
-                        var principal = new ClaimsPrincipal(identity);
-                        var ticket = new AuthenticationTicket
-                            (principal, properties,
-                            Options.Cookies.ApplicationCookie.AuthenticationScheme);
-
-                        //handle the sign in method of the auth middleware
-                        await Context.Authentication.SignInAsync
-                            (Options.Cookies.ApplicationCookie.AuthenticationScheme,
-                            principal, properties);
-
-                        Context.Items[AuthenticatedKey] = true;
 
                         //throw the succeded event
                         await Options.Events.AuthenticationSucceeded(new Events.AuthenticationSucceededContext(Context, Options)
@@ -190,12 +165,43 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
             return AuthenticateResult.Fail("Unauthorized");
         }
 
+        private async Task<AuthenticationTicket> CreateAuthenticationTicket(IEnumerable<Claim> claims, AuthenticationProperties properties)
+        {
+            // we need to create a new identity using the sign in type that 
+            // the cookie authentication is listening for
+            var identity = new ClaimsIdentity(Options.Cookies.ApplicationCookie.AuthenticationScheme);
+
+            //Add WindowsIdentity claims to the Identity object
+            identity.AddClaims(claims);
+
+            // create the authentication ticket
+            var principal = new ClaimsPrincipal(identity);
+            var ticket = new AuthenticationTicket
+                (principal, properties,
+                Options.Cookies.ApplicationCookie.AuthenticationScheme);
+
+            //handle the sign in method of the auth middleware
+            await Context.Authentication.SignInAsync
+                (Options.Cookies.ApplicationCookie.AuthenticationScheme,
+                principal, properties);
+
+            Context.Items[AuthenticatedKey] = true;
+            return ticket;
+        }
+
         protected override async Task<bool> HandleUnauthorizedAsync(ChallengeContext context)
         {
             if (Response.StatusCode != 302)
                 await base.HandleUnauthorizedAsync(context);
 
             return true;
+        }
+        
+        public override async Task<bool> HandleRequestAsync()
+        {
+            //var authContext = new AuthenticateContext(Options.Cookies.ApplicationCookie.AuthenticationScheme);
+            //await this.Context.Authentication.AuthenticateAsync(authContext);
+            return await base.HandleRequestAsync();
         }
 
         protected override async Task HandleSignInAsync(SignInContext context)

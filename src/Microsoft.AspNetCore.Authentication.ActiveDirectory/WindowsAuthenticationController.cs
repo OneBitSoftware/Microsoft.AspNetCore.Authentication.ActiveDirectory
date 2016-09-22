@@ -15,31 +15,19 @@
             {
                 var defaultProperties = new AuthenticationProperties() { RedirectUri = returnUrl };
 
-                var context = this.Request.HttpContext;
-                await context.Authentication.ChallengeAsync(ActiveDirectoryOptions.DefaultAuthenticationScheme, defaultProperties);
+                var authContext = new Http.Features.Authentication.AuthenticateContext(ActiveDirectoryOptions.DefaultAuthenticationScheme);
+                await HttpContext.Authentication.AuthenticateAsync(authContext);
 
-                if (context.Response.StatusCode == 302)
-                    return new StatusCodeResult(302);
-                else
+                if (!authContext.Accepted || authContext.Principal == null)
                 {
-
-                    if (Response.StatusCode == 401)
-                    {
-                        //fix ReturnUrl
-                        var requestQuery = Request.QueryString.Value;
-
-                    }
-                    //context.ChallenceCalled
                     return new UnauthorizedResult();
                 }
             }
+
+            if (string.IsNullOrWhiteSpace(returnUrl))
+                return new OkResult();
             else
-            {
-                if (string.IsNullOrWhiteSpace(returnUrl))
-                    return new OkResult();
-                else
-                    return Redirect(returnUrl);
-            }
+                return Redirect(returnUrl);
         }
 
         [AllowAnonymous]

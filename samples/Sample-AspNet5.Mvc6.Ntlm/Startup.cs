@@ -69,10 +69,11 @@ namespace Sample_AspNet5.Mvc6.Ntlm
                     new CookieAuthenticationOptions()
                     {
                         AuthenticationScheme = typeof(ActiveDirectoryCookieOptions).Namespace + ".Application",
-                        AutomaticAuthenticate = false,
+                        AutomaticAuthenticate = true,
                         AutomaticChallenge = true,
                         ReturnUrlParameter = "ReturnUrl",
                         LoginPath = new PathString("/windowsauthentication/ntlm"),
+                        AccessDeniedPath = new PathString("/windowsauthentication/ntlm")
                     }).ApplicationCookie
             );
 

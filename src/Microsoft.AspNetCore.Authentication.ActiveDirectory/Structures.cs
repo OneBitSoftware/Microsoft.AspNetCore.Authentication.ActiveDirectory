@@ -139,7 +139,7 @@
             {
                 if (cBuffers == 1)
                 {
-                    SecurityBuffer ThisSecBuffer = (SecurityBuffer)Marshal.PtrToStructure(pBuffers, typeof(SecurityBuffer));
+                    SecurityBuffer ThisSecBuffer = (SecurityBuffer)Marshal.PtrToStructure<SecurityBuffer>(pBuffers);
                     ThisSecBuffer.Dispose();
                 }
                 else
@@ -153,7 +153,7 @@
                         //What we need to do here is to grab a hold of the pvBuffer allocate by the individual
                         //SecBuffer and release it...
                         int CurrentOffset = Index * Marshal.SizeOf(typeof(Buffer));
-                        IntPtr SecBufferpvBuffer = Marshal.ReadIntPtr(pBuffers, CurrentOffset + Marshal.SizeOf(typeof(int)) + Marshal.SizeOf(typeof(int)));
+                        IntPtr SecBufferpvBuffer = Marshal.ReadIntPtr(pBuffers, CurrentOffset +  Marshal.SizeOf<int>() + Marshal.SizeOf<int>());
                         Marshal.FreeHGlobal(SecBufferpvBuffer);
                     }
                 }
@@ -174,7 +174,7 @@
 
             if (cBuffers == 1)
             {
-                SecurityBuffer ThisSecBuffer = (SecurityBuffer)Marshal.PtrToStructure(pBuffers, typeof(SecurityBuffer));
+                SecurityBuffer ThisSecBuffer = (SecurityBuffer)Marshal.PtrToStructure<SecurityBuffer>(pBuffers);
 
                 if (ThisSecBuffer.cbBuffer > 0)
                 {
@@ -209,7 +209,7 @@
                     //byte array...
                     int CurrentOffset = Index * Marshal.SizeOf(typeof(Buffer));
                     int BytesToCopy = Marshal.ReadInt32(pBuffers, CurrentOffset);
-                    IntPtr SecBufferpvBuffer = Marshal.ReadIntPtr(pBuffers, CurrentOffset + Marshal.SizeOf(typeof(int)) + Marshal.SizeOf(typeof(int)));
+                    IntPtr SecBufferpvBuffer = Marshal.ReadIntPtr(pBuffers, CurrentOffset + Marshal.SizeOf<int>() + Marshal.SizeOf<int>());
                     Marshal.Copy(SecBufferpvBuffer, Buffer, BufferIndex, BytesToCopy);
                     BufferIndex += BytesToCopy;
                 }

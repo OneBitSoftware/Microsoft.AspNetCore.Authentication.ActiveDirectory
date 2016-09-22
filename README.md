@@ -1,25 +1,24 @@
 # Microsoft.AspNetCore.Authentication.ActiveDirectory
 [![Build status](https://ci.appveyor.com/api/projects/status/hhd468o15oct73sg?svg=true)](https://ci.appveyor.com/project/SharePointRadi/microsoft-aspnetcore-authentication-activedirector)
 
-Middleware for ASP.NET 5 for Windows Integrated Authentication with NTLM and Kerberos
+Middleware for ASP.NET Core for Windows Integrated Authentication with NTLM and Kerberos
 
 ##Overview
-This ASP.NET 5 middleware lets you authenticate to Active Directory. 
+This ASP.NET Core middleware lets you authenticate to Active Directory. 
 
 The old school ASP.NET Membership capabilities and Forms Authentication had a nice LDAP provider, and IIS has native Windows Integrated Authentication capability, supporting both NTLM and Kerberos authentication. 
 
-The new ASP.NET 5 stuff doesn't have NTLM/Kerberos authentication middleware and ASP.NET Identity 3 doesn't have an LDAP provider. This library allows you to do Windows Integrated Authentication with ASP.NET 5.
+ASP.NET Core doesn't have NTLM/Kerberos authentication middleware and ASP.NET Identity 3 doesn't have an LDAP provider. Usually, IIS handles this (and it still can), but what if you are hosting on Kestrel? This library allows you to do Windows Integrated Authentication with ASP.NET Core.
 
 ##Status
-This is still work in progress. Kerberos is not attempted yet. 
+NTLM is working. Kerberos is not attempted yet. 
 
 Todo:
-- Create a Log Out action link
 - Get some unit tests in place
-- Add comments and clean up some code
+- Implement Kerberos
 
 ##Getting Started
-1. Review the sample in the "samples folder.
+1. Review the sample in the `samples` folder.
 2. Either install through the NuGet package: https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.ActiveDirectory/
 
 	OR just reference the source code directly.
@@ -37,7 +36,7 @@ app.UseNtlm(new ActiveDirectoryOptions
     SignInAsAuthenticationScheme = ActiveDirectoryOptions.DefaultAuthenticationScheme,
 });
 ```
-At this stage your middleware is accessible from the {site}/windowsauthentication/ntlm endpoint. ReturnUrl will take the user to the page after login.
+At this stage your middleware is accessible through the {site}/windowsauthentication/ntlm endpoint. ReturnUrl will take the user to the page after login. I use this endpoint to perform NTLM handshaking.
 
 ## Setting up a custom controller URL
 If you don't like the default "/windowsauthentication/ntlm", you can use the CallbackPath and LoginPath settings to configure your alternative route.
@@ -113,7 +112,7 @@ See https://tools.ietf.org/html/rfc4559 for more info on NTLM
 
 ## Kudos
 Most of the code here is based on what Yannic Staudt developed here: https://github.com/pysco68/Pysco68.Owin.Authentication.Ntlm
-It is adapted for ASP.NET vNext with some changes to the logic. A HUGE thanks for the interop class!
+It is adapted for ASP.NET Core with some changes to the logic. A HUGE thanks for the interop class!
 
 ##Contribution
 Feel free to reach out, I would love to hear if you are using this (or trying to). Pull requests are more than welcome.

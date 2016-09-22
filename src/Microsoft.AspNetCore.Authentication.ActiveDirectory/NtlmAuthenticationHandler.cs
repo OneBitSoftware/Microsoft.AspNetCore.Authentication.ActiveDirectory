@@ -50,7 +50,7 @@ namespace Microsoft.AspNetCore.Authentication.ActiveDirectory
                 (Context.Items.ContainsKey(RespondNoNtlmKey)) ||
                 (Context.Items.ContainsKey(RespondType2Key)))
             {
-                if (PriorHandler.GetType().BaseType == typeof(AuthenticationHandler<CookieAuthenticationOptions>))
+                if (PriorHandler.GetType().FullName == "Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationHandler")
                 {
                     var challengeContext = new ChallengeContext(ActiveDirectoryOptions.DefaultAuthenticationScheme);
                     PriorHandler.ChallengeAsync(challengeContext);

@@ -12,7 +12,7 @@ branches:
     - /^(.*\/)?ci-.*$/
 
 build_script:
-  - build.cmd --quiet verify
+  - build.cmd verify
 
 after_build:
   - ps: Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }

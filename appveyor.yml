@@ -4,22 +4,25 @@ nuget:
 init:
   - git config --global core.autocrlf true
 
-install:
- - ps: "&{$Branch='dev';iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.ps1'))}"
- - ps: dnvm update-self
- - ps: dnvm upgrade
- - ps: dnvm install 1.0.0-rc1-update1
- - ps: dnvm list
- - ps: dnvm use 1.0.0-rc1-update1
+branches:
+  only:
+    - master
+    - release
+    - dev
+    - /^(.*\/)?ci-.*$/
 
-before_build:
- - ps: dnu restore
+build_script:
+  - build.cmd --quiet verify
 
 after_build:
   - ps: Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 artifacts: 
  - path: '**\Microsoft.AspNetCore.Authentication.ActiveDirectory*.nupkg' 
+
+clone_depth: 1
+
+test: off
 
 deploy:
   provider: NuGet

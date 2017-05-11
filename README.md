@@ -3,21 +3,21 @@ NOTE: AppVeyor build is failing due to build scripts not yet updated. Solution i
 
 Middleware for ASP.NET Core for Windows Integrated Authentication with NTLM and Kerberos
 
-##Overview
+## Overview
 This ASP.NET Core middleware lets you authenticate to Active Directory. 
 
 The old school ASP.NET Membership capabilities and Forms Authentication had a nice LDAP provider, and IIS has native Windows Integrated Authentication capability, supporting both NTLM and Kerberos authentication. 
 
 ASP.NET Core doesn't have NTLM/Kerberos authentication middleware and ASP.NET Identity 3 doesn't have an LDAP provider. Usually, IIS handles this (and it still can), but what if you are hosting on Kestrel? This library allows you to do Windows Integrated Authentication with ASP.NET Core.
 
-##Status
+## Status
 NTLM is working. Kerberos is not attempted yet. 
 
 Todo:
 - Get some unit tests in place
 - Implement Kerberos
 
-##Getting Started
+## Getting Started
 1. Review the sample in the `samples` folder.
 2. Either install through the NuGet package: https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.ActiveDirectory/
 
@@ -73,7 +73,7 @@ routes.MapRoute(
     template: "api/{controller=WindowsAuthentication}/{action=Ntlm}");
 ```
 
-##Events
+## Events
 If you choose to do so, you can subscribe to authentication events thrown from the middleware. To do so, pass an AuthenticationEvents class to the ActiveDirectoryOptions object during startup:
 
 ```cs
@@ -105,7 +105,7 @@ app.UseNtlm(new ActiveDirectoryOptions
 });
 ```
 
-##Remarks
+## Remarks
 Achieving server-side NTLM handshaking depends the Windows platform due to interop, dependency on domain-joined machines and secur32.dll. This will naturally limit this library to Windows-based DNX hosts.
 
 See https://tools.ietf.org/html/rfc4559 for more info on NTLM
